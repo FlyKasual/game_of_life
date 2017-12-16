@@ -10,9 +10,12 @@ class Cell {
 		this.htmlCell.className = cssClass
 	}
 
-	update(state) {
-		this.state = state
-		let cssClass = this.state === 1 ? 'alive' : 'dead'
-		this.htmlCell.className = cssClass
+	update() {
+		let stateChanges = this.state !== this.nextState
+		if (stateChanges) {
+			this.state = this.nextState
+			let cssClass = this.state === 1 ? 'alive' : 'dead'
+			this.htmlCell.className = cssClass
+		}
 	}
 }

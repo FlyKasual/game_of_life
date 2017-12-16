@@ -1,5 +1,7 @@
 #world {
-	width: 600px;
+	box-sizing: border-box;
+	border: 1px solid red;
+	width: 602px;
 }
 
 #world::after {
@@ -9,11 +11,15 @@
 }
 
 .dead, .alive {
+	background-color: #000;
+	box-sizing: border-box;
 	float: left;
 	height: 10px;
 	width: 10px;
+	will-change: background-color;
 }
 
 .alive {
-	background-color: #000;
+	background-color: lime;
+	border: 1px solid red;
 }
