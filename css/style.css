@@ -23,3 +23,7 @@
 	background-color: lime;
 	border: 1px solid red;
 }
+
+.dead:hover, .alive:hover {
+	background-color: rgba(204, 204, 204, .5);
+}

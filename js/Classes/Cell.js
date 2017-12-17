@@ -1,21 +1,26 @@
+const states = ['dead', 'alive']
 class Cell {
-	constructor() {
-		let rand = Math.floor(
-			Math.random() * 10
-		)
-		this.state = rand < 2 ? 1 : 0
+	constructor(state = 0) {
+		this.state = state
 		this.nextState = this.state
 		this.htmlCell = document.createElement('div')
-		let cssClass = this.state === 1 ? 'alive' : 'dead'
-		this.htmlCell.className = cssClass
+		this.htmlCell.className = states[this.state]
+		this.htmlCell.addEventListener('click', e => {
+			this.state = 1 - this.state
+			this.htmlCell.className = states[this.state]
+		})
 	}
 
 	update() {
 		let stateChanges = this.state !== this.nextState
 		if (stateChanges) {
 			this.state = this.nextState
-			let cssClass = this.state === 1 ? 'alive' : 'dead'
-			this.htmlCell.className = cssClass
+			this.htmlCell.className = states[this.state]
 		}
+	}
+
+	setState(state) {
+		this.state = state
+		this.htmlCell.className = states[this.state]
 	}
 }
