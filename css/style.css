@@ -16,12 +16,10 @@
 	float: left;
 	height: 10px;
 	width: 10px;
-	will-change: background-color;
 }
 
 .alive {
 	background-color: lime;
-	border: 1px solid red;
 }
 
 .dead:hover, .alive:hover {

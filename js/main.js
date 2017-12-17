@@ -1,1 +1,1 @@
-let grid = new Grid(60, 100)
+let grid = new Grid(60, 60, 33)
