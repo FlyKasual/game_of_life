@@ -105,12 +105,16 @@ class Grid {
 	getNeighbors(position) {
 		let arr = []
 		directions.forEach((cv, i, a) => {
+			let elementToPush = this.getNeighborByDirection(position, cv)
+			if (!elementToPush) {
+				console.warn('Position: ', position, '\nDirection: ', cv, '\nCrrent position: x' , this.getCoords(position).x, 'y: ', this.getCoords(position).y)
+			}
 			arr.push(this.getNeighborByDirection(position, cv))
 		})
 		return arr
 	}
 
-	getNeighborByDirection(position, direction) {
+	getNeighborByDirection(position, direction) { // TODO set by constant
 		switch (this.topology) {
 			case 'bounded dead':
 				return this.getNeighborByDirectionInBoundedDeadTopology(position, direction)
@@ -128,7 +132,7 @@ class Grid {
 		let numberOfLivingNeighbors = this.countLivingNeighbors(position)
 		if (this.cells[position].state === 0 && numberOfLivingNeighbors === 3) {
 			return 1
-		}
+		}		
 		if (this.cells[position].state === 1 && (numberOfLivingNeighbors < 2 ||
 				numberOfLivingNeighbors > 3)) {
 			return 0
@@ -161,237 +165,169 @@ class Grid {
 		this.interval = null
 	}
 
+	getIndex(x, y) {
+		return x + y * this.width
+	}
+
+	getCoords(ind) {
+		let x = ind % this.width
+		let y = (ind - x) / this.width
+		return {
+			x: x,
+			y: y
+		}
+	}
+
 	getNeighborByDirectionInToralTopology(position, direction) {
+		let currentPosition = this.getCoords(position)
 		switch (direction) {
 			case 'nw':
-				if (position === 0) {
-					return this.cells[this.area - 1]
-				}
-				if (position < this.width) {
-					return this.cells[position + this.area - this.width - 1]
-				}
-				if (position % this.width === 0) {
-					return this.cells[position - 1]
-				}
-				return this.cells[position - this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'n':
-				if (position < this.width) {
-					return this.cells[position + this.area - this.width]
-				}
-				return this.cells[position - this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'ne':
-				if (position === this.width - 1) {
-					return this.cells[this.area - this.width]
-				}
-				if (position < this.width) {
-					return this.cells[position + this.area - this.width + 1]
-				}
-				if (position % this.width === this.width - 1) {
-					return this.cells[position - 2 * this.width + 1]
-				}
-				return this.cells[position - this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'w':
-				if (position % this.width === 0) {
-					return this.cells[position + this.width - 1]
-				}
-				return this.cells[position - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y)]
 			case 'e':
-				if (position % this.width === this.width - 1) {
-					return this.cells[position - this.width + 1]
-				}
-				return this.cells[position + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y)]
 			case 'sw':
-				if (position === this.area - this.width) {
-					return this.cells[this.width - 1]
-				}
-				if (position >= this.area - this.width) {
-					return this.cells[position - this.area + this.width - 1]
-				}
-				if (position % this.width === 0) {
-					return this.cells[position + 2 * this.width - 1]
-				}
-				return this.cells[position + this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 			case 's':
-				if (position >= this.area - this.width) {
-					return this.cells[position - this.area + this.width]
-				}
-				return this.cells[position + this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y + this.height + 1) % this.height)]
 			case 'se':
-				if (position === this.area - 1) {
-					return this.cells[0]
-				}
-				if (position >= this.area - this.width) {
-					return this.cells[position - this.area + this.width + 1]
-				}
-				if (position % this.width === this.width - 1) {
-					return this.cells[position + 1]
-				}
-				return this.cells[position + this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 		}
 	}
 
 	getNeighborByDirectionInBoundedDeadTopology(position, direction) {
+		let currentPosition = this.getCoords(position)
 		switch (direction) {
 			case 'nw':
-				if (position < this.width || position % this.width === 0) {
+				if (currentPosition.x === 0 || currentPosition.y === 0) {
 					return new Cell(0)
 				}
-				return this.cells[position - this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'n':
-				if (position < this.width) {
+				if (currentPosition.y === 0) {
 					return new Cell(0)
 				}
-				return this.cells[position - this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'ne':
-				if (position < this.width || position % this.width ===
-					this.width - 1) {
+				if (currentPosition.x === this.width - 1 || currentPosition.y === 0) {
 					return new Cell(0)
 				}
-				return this.cells[position - this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'w':
-				if (position % this.width === 0) {
-					return new Cell(0)
+				if (currentPosition.x === 0) {
+					return new Cell (0)
 				}
-				return this.cells[position - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y)]
 			case 'e':
-				if (position % this.width === this.width - 1) {
+				if (currentPosition.x === this. width - 1) {
 					return new Cell(0)
 				}
-				return this.cells[position + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y)]
 			case 'sw':
-				if (position >= this.area - this.width || position % this.width === 0) {
+				if (currentPosition.x === 0 || currentPosition.y === this.height - 1) {
 					return new Cell(0)
 				}
-				return this.cells[position + this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 			case 's':
-				if (position >= this.area - this.width) {
+				if (currentPosition.y === this.height - 1) {
 					return new Cell(0)
 				}
-				return this.cells[position + this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y + this.height + 1) % this.height)]
 			case 'se':
-				if (position >= this.area - this.width || position % this.width === this.width - 1) {
+				if (currentPosition.x === this.width - 1 || currentPosition.y === this.height -1) {
 					return new Cell(0)
 				}
-				return this.cells[position + this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 		}
-
 	}
 	getNeighborByDirectionInBoundedLivingTopology(position, direction) {
+		let currentPosition = this.getCoords(position)
 		switch (direction) {
 			case 'nw':
-				if (position < this.width || position % this.width === 0) {
+				if (currentPosition.x === 0 || currentPosition.y === 0) {
 					return new Cell(1)
 				}
-				return this.cells[position - this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'n':
-				if (position < this.width) {
+				if (currentPosition.y === 0) {
 					return new Cell(1)
 				}
-				return this.cells[position - this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'ne':
-				if (position < this.width || position % this.width ===
-					this.width - 1) {
+				if (currentPosition.x === this.width - 1 || currentPosition.y === 0) {
 					return new Cell(1)
 				}
-				return this.cells[position - this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y  + this.height - 1) % this.height)]
 			case 'w':
-				if (position % this.width === 0) {
-					return new Cell(1)
+				if (currentPosition.x === 0) {
+					return new Cell (1)
 				}
-				return this.cells[position - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y)]
 			case 'e':
-				if (position % this.width === this.width - 1) {
+				if (currentPosition.x === this. width - 1) {
 					return new Cell(1)
 				}
-				return this.cells[position + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y)]
 			case 'sw':
-				if (position >= this.area - this.width || position % this.width === 0) {
+				if (currentPosition.x === 0 || currentPosition.y === this.height - 1) {
 					return new Cell(1)
 				}
-				return this.cells[position + this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 			case 's':
-				if (position >= this.area - this.width) {
+				if (currentPosition.y === this.height - 1) {
 					return new Cell(1)
 				}
-				return this.cells[position + this.width]
+				return this.cells[this.getIndex(currentPosition.x, (currentPosition.y + this.height + 1) % this.height)]
 			case 'se':
-				if (position >= this.area - this.width || position % this.width === this.width - 1) {
+				if (currentPosition.x === this.width - 1 || currentPosition.y === this.height -1) {
 					return new Cell(1)
 				}
-				return this.cells[position + this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
 		}
-
 	}
 
 	getNeighborByDirectionInKleinBottleTopology(position, direction) {
+		let currentPosition = this.getCoords(position)
 		switch (direction) {
 			case 'nw':
-				if (position === 0) {
-					return this.cells[this.area - this.width]
+				if (currentPosition.y === 0) {
+					return this.cells[this.getIndex((this.width - currentPosition.x) % this.width, this.height - 1)]
 				}
-				if (position < this.width) {
-					return this.cells[this.area - position]
-				}
-				if (position % this.width === 0) {
-					return this.cells[position - 1]
-				}
-				return this.cells[position - this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y  - 1)]
 			case 'n':
-				if (position < this.width) {
-					return this.cells[this.area - position - 1]
+				if (currentPosition.y === 0) {
+					return this.cells[this.getIndex(this.width - 1 - currentPosition.x, this.height - 1)]
 				}
-				return this.cells[position - this.width]
+				return this.cells[this.getIndex(currentPosition.x, currentPosition.y  - 1)]
 			case 'ne':
-				if (position === this.width - 1) {
-					return this.cells[this.area - 1]
+				if (currentPosition.y === 0) {
+					return this.cells[this.getIndex((2 * this.width - currentPosition.x - 2) % this.width, this.height - 1)]
 				}
-				if (position < this.width) {
-					return this.cells[this.area - position - 2]
-				}
-				if (position % this.width === this.width - 1) {
-					return this.cells[position - 2 * this.width + 1]
-				}
-				return this.cells[position - this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y  - 1)]
 			case 'w':
-				if (position % this.width === 0) {
-					return this.cells[position + this.width - 1]
-				}
-				return this.cells[position - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y)]
 			case 'e':
-				if (position % this.width === this.width - 1) {
-					return this.cells[position - this.width + 1]
-				}
-				return this.cells[position + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y)]
 			case 'sw':
-				if (position === this.area - this.width) {
-					return this.cells[0]
+				if (currentPosition.y === this.height - 1) {
+					return this.cells[(this.width - currentPosition.x) % this.width]
 				}
-				if (position >= this.area - this.width) {
-					return this.cells[this.area - position]
-				}
-				if (position % this.width === 0) {
-					return this.cells[position + 2 * this.width - 1]
-				}
-				return this.cells[position + this.width - 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width - 1) % this.width, currentPosition.y + 1)]
 			case 's':
-				if (position >= this.area - this.width) {
-					return this.cells[this.area - position - 1]
+				if (currentPosition.y === this.height - 1) {
+					return this.cells[this.width - 1 - currentPosition.x]
 				}
-				return this.cells[position + this.width]
+				return this.cells[this.getIndex(currentPosition.x, currentPosition.y + 1)]
 			case 'se':
-				if (position === this.area - 1) {
-					return this.cells[this.width - 1]
+				if (currentPosition.y === this.height - 1) {
+					return this.cells[(2 * this.width - currentPosition.x - 2) % this.width]
 				}
-				if (position >= this.area - this.width) {
-					return this.cells[this.area - position - 2]
-				}
-				if (position % this.width === this.width - 1) {
-					return this.cells[position + 1]
-				}
-				return this.cells[position + this.width + 1]
+				return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, currentPosition.y + 1)]
 		}
-
 	}
-
-
 }
