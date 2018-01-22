@@ -1,1 +1,1 @@
-let grid = new Grid(60, 60, 33)
+let grid = new Grid({timing: 33, width: 180})

@@ -20,18 +20,22 @@ const topologies = [
 const prob = 25
 
 class Grid {
-  constructor(width = 60, height = 60, timing = 150) {
+  constructor({
+    width = 60,
+    height = 60,
+    timing = 150
+  } = {}) {
     this.running = false
     this.interval = null
-    this.htmlContainer = document.createElement('div')
-    this.htmlContainer.id = 'world'
-    this.htmlContainer.style.width = (width * 10 + 2) + 'px'
-    document.body.append(this.htmlContainer)
-    this.topology = 'torus'
     this.width = width
     this.height = height
-    this.area = this.width * this.height
     this.timing = timing
+    this.htmlContainer = document.createElement('div')
+    this.htmlContainer.id = 'world'
+    this.htmlContainer.style.width = (this.width * 10 + 2) + 'px'
+    document.body.append(this.htmlContainer)
+    this.topology = 'torus'
+    this.area = this.width * this.height
     this.cells = this.createCells(this.area)
     this.startButton = document.createElement('button')
     this.startButton.innerHTML = 'start'
