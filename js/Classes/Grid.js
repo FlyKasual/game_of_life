@@ -89,8 +89,8 @@ class Grid {
     this.topologySelector.onchange = () => {
       this.topology = topologies[this.topologySelector.selectedIndex]
     }
-
   }
+
   createCells(dimension) {
     let arr = []
     for (let i = 0; i < dimension; ++i) {
@@ -142,7 +142,7 @@ class Grid {
     let numberOfLivingNeighbors = this.countLivingNeighbors(position)
     if (this.cells[position].state === 0 && numberOfLivingNeighbors === 3) {
       return 1
-    }    
+    }
     if (this.cells[position].state === 1 && (numberOfLivingNeighbors < 2 ||
         numberOfLivingNeighbors > 3)) {
       return 0
@@ -255,7 +255,7 @@ class Grid {
         return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
     }
   }
-  
+
   getNeighborByDirectionInBoundedLivingTopology(position, direction) {
     let currentPosition = this.getCoords(position)
     switch (direction) {
@@ -301,7 +301,7 @@ class Grid {
         return this.cells[this.getIndex((currentPosition.x + this.width + 1) % this.width, (currentPosition.y + this.height + 1) % this.height)]
     }
   }
-  
+
   getNeighborByDirectionInBoundedRandomTopology(position, direction) {
     let currentPosition = this.getCoords(position)
     let state = Math.floor((Math.random() * 100) + 1) > prob ? 0 : 1
